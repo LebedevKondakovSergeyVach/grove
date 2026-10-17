@@ -1,5 +1,7 @@
 # Grove
 
+Version 0.1.0, MVP. The only branch is `main`. Workspace commands are not implemented yet.
+
 Grove runs one git workflow across a workspace of related repositories.
 
 `grove switch` checks every repository before it changes any of them. If one repository cannot switch, none of them change. If a switch fails after some repositories have already moved, those repositories return to the branches they were on. The check includes skip-worktree and assume-unchanged files.
