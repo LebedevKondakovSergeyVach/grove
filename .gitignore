@@ -1,0 +1,20 @@
+# Rust build target
+/target
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# User local settings overrides
+settings.local.json
+
+# Personal agent notes, never committed
+CLAUDE.local.md
+SESSION.md
+
+# Local MCP and editor config. A clone's exclude list does not travel.
+/.cursor/mcp.json
+/.cursor/cli.json
+/.codex/config.toml
+/.claude/RESUME.md
+/ai_docs/
