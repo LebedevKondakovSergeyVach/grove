@@ -1,0 +1,22 @@
+{
+	"pagefind.clear_search": "Clear",
+	"pagefind.load_more": "Load more",
+	"pagefind.search_label": "Search this site",
+	"pagefind.filters_label": "Filters",
+	"pagefind.zero_results": "No results for “[SEARCH_TERM]”",
+	"pagefind.many_results": "[COUNT] results for “[SEARCH_TERM]”",
+	"pagefind.one_result": "1 result for “[SEARCH_TERM]”",
+	"pagefind.searching": "Searching for “[SEARCH_TERM]”…",
+	"grove.home": "Home",
+	"grove.diagram.open": "Expand",
+	"grove.diagram.title": "Diagram",
+	"grove.diagram.close": "Close diagram",
+	"grove.diagram.controls": "Diagram zoom controls",
+	"grove.diagram.zoomIn": "Zoom in",
+	"grove.diagram.zoomOut": "Zoom out",
+	"grove.diagram.fit": "Fit",
+	"grove.diagram.actual": "Actual size",
+	"grove.diagram.scale": "Zoom level",
+	"grove.diagram.pan": "Diagram: use arrow keys to pan, + and − to zoom, 0 to fit",
+	"grove.diagram.hint": "Drag to move. Pinch or scroll to zoom. Keyboard: arrows, +, −, 0."
+}

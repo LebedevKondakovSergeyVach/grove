@@ -1,0 +1,22 @@
+{
+	"pagefind.clear_search": "Очистить",
+	"pagefind.load_more": "Показать ещё",
+	"pagefind.search_label": "Поиск по сайту",
+	"pagefind.filters_label": "Фильтры",
+	"pagefind.zero_results": "Ничего не найдено по запросу «[SEARCH_TERM]»",
+	"pagefind.many_results": "Найдено результатов: [COUNT] по запросу «[SEARCH_TERM]»",
+	"pagefind.one_result": "Найден 1 результат по запросу «[SEARCH_TERM]»",
+	"pagefind.searching": "Поиск по запросу «[SEARCH_TERM]»…",
+	"grove.home": "На главную",
+	"grove.diagram.open": "Развернуть",
+	"grove.diagram.title": "Схема",
+	"grove.diagram.close": "Закрыть схему",
+	"grove.diagram.controls": "Управление масштабом схемы",
+	"grove.diagram.zoomIn": "Увеличить",
+	"grove.diagram.zoomOut": "Уменьшить",
+	"grove.diagram.fit": "Вписать",
+	"grove.diagram.actual": "Исходный размер",
+	"grove.diagram.scale": "Масштаб",
+	"grove.diagram.pan": "Схема: стрелки — перемещение, + и − — масштаб, 0 — вписать",
+	"grove.diagram.hint": "Перетаскивайте схему. Масштаб — двумя пальцами или колесом. Клавиши: стрелки, +, −, 0."
+}
