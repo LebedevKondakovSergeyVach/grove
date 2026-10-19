@@ -17,7 +17,8 @@ GitHub. Full contract: `website/AGENTS.md`, "Content ownership".
 A change to commands or configuration is incomplete until these agree:
 `README.md` **and** `README.ru.md`; the relevant `docs/X.md` **and**
 `docs/X.ru.md`; `CHANGELOG.md` **and** `CHANGELOG.ru.md`. `CONTRIBUTING.md` has
-no Russian twin — the site falls back to English for it.
+no Russian twin — the site falls back to English for it. `SECURITY.md` is an
+English-only GitHub policy file, not a site page.
 
 ## Plain CommonMark
 
@@ -32,7 +33,7 @@ no Russian twin — the site falls back to English for it.
 ## Changelogs
 
 - Keep a Changelog format. Release headings use an em dash:
-  `## [2.3.0] — 2026-09-08`. The link-reference footer at the bottom of each file
+  `## [X.Y.Z] — YYYY-MM-DD`. The link-reference footer at the bottom of each file
   needs a line per release, or the heading renders as literal `[x.y.z]`.
 - New entries go under `## [Unreleased]`, written for the person upgrading.
 - If the open release branch already carries its `## [X.Y.Z]` section (cut but
@@ -43,8 +44,7 @@ no Russian twin — the site falls back to English for it.
 
 Screenshot files are cached hard by GitHub's image proxy. A changed screenshot
 needs a **new filename** and an updated link; overwriting the file shows users
-the old image. If the TUI changes materially, say so — the README screenshot
-needs retaking.
+the old image.
 
 ## Verify
 
@@ -52,4 +52,4 @@ needs retaking.
 cd website && npm ci && npm test && npm run build
 ```
 
-The build fails on a dead internal link. That is the check working.
+The build fails on a dead internal link.

@@ -14,9 +14,19 @@ A workspace file lists each repository: name, path, and remote. Task branch name
 
 User settings cover the shell, language, color, and the default remote.
 
-## Commands
+## Install
 
-The binary is not published. There is no installable package yet.
+No release exists yet. Install the head version now:
+
+```bash
+brew install --HEAD LebedevKondakovSergeyVach/tap/grove
+# or
+cargo install --git https://github.com/LebedevKondakovSergeyVach/grove
+```
+
+After the first release: `brew install LebedevKondakovSergeyVach/tap/grove` or `cargo install grove-git`. See [Installation](docs/INSTALLATION.md).
+
+## Commands
 
 - `grove status` — branch, upstream, and local changes for each repository
 - `grove fetch` — fetch each repository

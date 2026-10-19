@@ -1,25 +1,53 @@
 # Установка
 
-Версия 0.1.0, MVP. Единственная ветка — `main`. Команда `grove` не опубликована. Нет формулы Homebrew, релиза на crates.io и архива на GitHub.
+Версия 0.1.0, MVP. Релизов пока нет. Команды workspace не реализованы, поэтому любой способ ниже ставит бинарник, который печатает `grove 0.1.0`.
 
 <!--site:tabs-->
 
 ## Homebrew
 
-Пока недоступно. Когда появится первый архив релиза, формула будет называться `grove` в tap `LebedevKondakovSergeyVach/homebrew-tap`.
+До первого релиза формула в tap `LebedevKondakovSergeyVach/homebrew-tap` содержит только head. Она собирается из `main` с помощью Rust:
+
+```bash
+brew install --HEAD LebedevKondakovSergeyVach/tap/grove
+```
+
+После первого релиза можно ставить выпущенную версию:
+
+```bash
+brew install LebedevKondakovSergeyVach/tap/grove
+```
 
 ## Cargo
 
-Имя пакета — `grove-git`. `cargo install grove-git` ничего не поставит, пока пакет не опубликован.
+Установка из репозитория уже работает:
+
+```bash
+cargo install --git https://github.com/LebedevKondakovSergeyVach/grove
+```
+
+Имя пакета — `grove-git`. После первого релиза `cargo install grove-git` поставит его с crates.io. До тех пор эта команда не найдёт пакет.
 
 ## Готовый бинарник
 
-Архивы релиза ещё не собираются. Планируемые имена: `grove-macos-arm64.tar.gz`, `grove-macos-x86_64.tar.gz`, `grove-linux-arm64.tar.gz`, `grove-linux-x86_64.tar.gz`. В каждом архиве бинарник `grove` и файл `.sha256`.
+После первого релиза в релизе на GitHub будут архивы: `grove-macos-arm64.tar.gz`, `grove-macos-x86_64.tar.gz`, `grove-linux-arm64.tar.gz` и `grove-linux-x86_64.tar.gz`. В каждом архиве бинарник `grove`; контрольная сумма — соседний файл `.sha256`. Сейчас архивов нет.
+
+## Из исходников
+
+Нужен Rust 1.88 или новее.
+
+```bash
+git clone https://github.com/LebedevKondakovSergeyVach/grove.git
+cd grove
+cargo build --release
+```
+
+Бинарник — `target/release/grove`.
 
 <!--site:/tabs-->
 
 <!--site:aside type="note"-->
 
-`cargo build` собирает бинарник, который печатает `grove 0.1.0`. Команды workspace не реализованы, релизов нет.
+Архивы релиза, стабильная формула Homebrew и пакет на crates.io появятся с первым релизом. До тех пор используйте head-формулу, `cargo install --git` или сборку из исходников.
 
 <!--site:/aside-->

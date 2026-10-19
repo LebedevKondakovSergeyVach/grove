@@ -14,9 +14,19 @@ Grove выполняет один git-процесс для набора свя�
 
 Пользовательские настройки задают оболочку, язык, цвет и remote по умолчанию.
 
-## Команды
+## Установка
 
-Бинарник не опубликован. Устанавливаемого пакета пока нет.
+Релизов пока нет. Head-версию можно поставить сейчас:
+
+```bash
+brew install --HEAD LebedevKondakovSergeyVach/tap/grove
+# или
+cargo install --git https://github.com/LebedevKondakovSergeyVach/grove
+```
+
+После первого релиза: `brew install LebedevKondakovSergeyVach/tap/grove` или `cargo install grove-git`. См. [Установка](docs/INSTALLATION.ru.md).
+
+## Команды
 
 - `grove status` — ветка, upstream и локальные изменения каждого репозитория
 - `grove fetch` — fetch каждого репозитория

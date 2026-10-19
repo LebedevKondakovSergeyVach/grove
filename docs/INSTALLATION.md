@@ -1,25 +1,53 @@
 # Installation
 
-Version 0.1.0, MVP. The only branch is `main`. The `grove` command is not published. There is no Homebrew formula, no crates.io release, and no GitHub release archive.
+Version 0.1.0, MVP. No release exists yet. Workspace commands are not implemented, so every route below installs a binary that prints `grove 0.1.0`.
 
 <!--site:tabs-->
 
 ## Homebrew
 
-Not available. After the first release archive exists, the formula name will be `grove` in the tap `LebedevKondakovSergeyVach/homebrew-tap`.
+Until the first release the formula in the tap `LebedevKondakovSergeyVach/homebrew-tap` is head-only. It builds from `main` with Rust:
+
+```bash
+brew install --HEAD LebedevKondakovSergeyVach/tap/grove
+```
+
+After the first release, install the released version:
+
+```bash
+brew install LebedevKondakovSergeyVach/tap/grove
+```
 
 ## Cargo
 
-The package name is `grove-git`. `cargo install grove-git` does nothing until that package is published.
+Install from the repository now:
+
+```bash
+cargo install --git https://github.com/LebedevKondakovSergeyVach/grove
+```
+
+The package name is `grove-git`. After the first release, `cargo install grove-git` installs it from crates.io. Until then that command finds no package.
 
 ## Prebuilt binary
 
-Release archives are not built yet. The planned file names are `grove-macos-arm64.tar.gz`, `grove-macos-x86_64.tar.gz`, `grove-linux-arm64.tar.gz`, and `grove-linux-x86_64.tar.gz`. Each archive contains the `grove` binary and a `.sha256` file.
+After the first release, the GitHub release carries these archives: `grove-macos-arm64.tar.gz`, `grove-macos-x86_64.tar.gz`, `grove-linux-arm64.tar.gz` and `grove-linux-x86_64.tar.gz`. Each archive contains the `grove` binary; its checksum is the matching `.sha256` file next to it. No archive exists today.
+
+## From source
+
+Requires Rust 1.88 or newer.
+
+```bash
+git clone https://github.com/LebedevKondakovSergeyVach/grove.git
+cd grove
+cargo build --release
+```
+
+The binary is `target/release/grove`.
 
 <!--site:/tabs-->
 
 <!--site:aside type="note"-->
 
-`cargo build` produces a binary that prints `grove 0.1.0`. Workspace commands are not implemented, and nothing is published.
+Release archives, the stable Homebrew formula and the crates.io package appear with the first release. Until then use the head formula, `cargo install --git`, or a source build.
 
 <!--site:/aside-->
