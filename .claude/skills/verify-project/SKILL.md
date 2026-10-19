@@ -13,8 +13,8 @@ cargo fmt --all -- --check && cargo clippy --all-targets --locked -- -D warnings
 
 CI adds `--all-features` to clippy and tests and supplies `-D warnings` through
 `RUSTFLAGS`. `Cargo.toml` declares no `[features]` table, so the two agree.
-It also runs an MSRV job on `rust-version`; if you used a newly stabilised std
-API, say that the MSRV job is the one to watch.
+It also runs an MSRV job pinned to the `rust-version` toolchain; if you used a
+newly stabilised std API, say that the MSRV job is the one to watch.
 
 ## 2. The website — when the change touched its sources
 
@@ -56,11 +56,15 @@ Run that snippet from the repository root.
 
 Check these by hand when they apply:
 
-- `shell/*.zsh`, `shell/*.bash` changed → `zsh -n` / `bash -n` on them (tests
-  check only the `init` output).
+- Shell files changed → `zsh -n` / `bash -n` on them
+  (`.claude/rules/shell-and-configs.md`).
+- `.github/scripts/` changed → `python3 -m unittest discover -s .github/scripts -p 'test_*.py'`.
+  Workflow YAML changed → reread every job you edited; CI is the only runner.
 - `src/`, `locales/`, `shell/`, `configs/` or `Cargo.toml` changed → entries in
   **both** changelogs. Direct commits to the release branch are not checked by CI.
-- Agent instruction files changed → the `agent-docs-audit` skill.
+- Agent instructions, `.claude/hooks/`, `.cursor/hooks/` or the
+  `cursor-delegate` runner changed → the `agent-docs-audit` skill (its script
+  runs the guard tests).
 
 ## 4. Reporting
 

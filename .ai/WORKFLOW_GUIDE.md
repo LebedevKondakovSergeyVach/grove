@@ -7,27 +7,27 @@ and reporting. Run it before claiming a change is complete.
 ## Iteration commands
 
 ```bash
-cargo test --lib             # library unit tests
-cargo test --test cli        # tests spawning the real binary
+cargo test --locked          # all tests
 cargo test <name-fragment>   # a focused regression
-cargo run -- <subcommand>    # local behavior check; may read/write user state
+cargo run                    # prints the version; no subcommands exist yet
+bash .claude/hooks/tests/guard-git-test.sh .claude/hooks/guard-git.sh
+python3 -m unittest discover -s .github/scripts -p 'test_*.py'
 ```
 
-Use isolated config/settings paths for manual state-changing checks. The
-binary-test helper already isolates both. Avoid tests that require external
-network access.
+Once commands read or write state, run manual checks against temporary
+workspace and settings paths. Avoid tests that need network access.
 
 ## Find the owning procedure
 
 | Change | Reference |
 | :--- | :--- |
-| Rust, locales, config precedence, regression tests | [Rust rule](../.claude/rules/rust-source.md) |
-| Shell syntax or shipped defaults | [Shell/config rule](../.claude/rules/shell-and-configs.md) |
+| Rust source and tests | [Rust rule](../.claude/rules/rust-source.md) |
+| Shell integration or shipped defaults | [Shell/config rule](../.claude/rules/shell-and-configs.md) |
 | Bilingual docs, changelogs, screenshots | [Docs rule](../.claude/rules/docs-sources.md) |
 | Site generator, styling or interactive behavior | [Website contract](../website/AGENTS.md) and [skill](../.claude/skills/starlight-website/SKILL.md) |
-| CI triggers and release recovery | [Git workflow](GIT_WORKFLOW.md) |
-| Agent instruction structure and references | [Instruction audit](../.claude/skills/agent-docs-audit/SKILL.md) |
+| CI triggers, release and recovery | [Git workflow](GIT_WORKFLOW.md) |
+| Agent instructions, hooks, delegation | [Instruction audit](../.claude/skills/agent-docs-audit/SKILL.md) |
 
-CI also builds crate documentation, tests on Linux/macOS and checks the MSRV
-declared by `rust-version`. The local gate does not reproduce every CI job;
-state which additional checks were run instead of implying full CI coverage.
+CI also builds crate documentation, tests on Linux and macOS, and runs the MSRV
+job pinned in `ci.yml`. The local gate does not reproduce every CI job; state
+which additional checks were run instead of implying full CI coverage.

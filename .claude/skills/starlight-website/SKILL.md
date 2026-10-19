@@ -8,8 +8,9 @@ description: Use when working on the Astro Starlight documentation site in websi
 1. Read [`website/AGENTS.md`](../../../website/AGENTS.md), the owning contract.
    Check the installed dependency versions in `website/package-lock.json`.
 2. Locate the source: canonical Markdown for content, the manifest/sidebar for
-   page routing, or website config/component/styles for UI. The project map's
-   documentation flow identifies the generator stages. Edit source, never output.
+   page routing, or website config/component/styles for UI. The generator stages
+   are in `website/scripts/sync-docs.mjs` and `website/AGENTS.md`, "Content
+   ownership". Edit source, never output.
 3. Consult astro-docs first, then context7 or official documentation for changed
    APIs. Resolve context7 IDs when needed; do not keep an ID/version inventory.
 4. Make the change in both locales. Keep the generator's source-shape,
