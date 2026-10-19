@@ -8,13 +8,11 @@
 
 ## Checklist
 
-- [ ] Branched from the open `release/X.Y.Z` and targeting that same branch
-      (only `release/*` and `hotfix/*` may target `main` — see
-      [`.ai/GIT_WORKFLOW.md`](../.ai/GIT_WORKFLOW.md))
+- [ ] Targets the branch [`.ai/GIT_WORKFLOW.md`](../.ai/GIT_WORKFLOW.md) names for
+      current work (only `release/*` and `hotfix/*` may target `main`)
 - [ ] `cargo fmt --all -- --check && cargo clippy --all-targets --locked -- -D warnings && cargo test --locked`
       passes (CI also adds `--all-features`; the crate defines no features)
-- [ ] New user-facing strings go through `I18n::t` / `I18n::format` and exist in
-      **both** `locales/en.json` and `locales/ru.json`
+- [ ] New user-facing strings exist in both the English and the Russian catalog
 - [ ] New or changed CLI commands are reflected in `README.md`, `README.ru.md`
       and `docs/`
 - [ ] `CHANGELOG.md` **and** `CHANGELOG.ru.md` have an entry under
@@ -26,8 +24,9 @@
 
 <!--
 Releasing? If this is release/X.Y.Z -> main, merging publishes: CI builds four
-targets and tags the commit. It does not update Homebrew. Confirm first that
-Cargo.toml and Cargo.lock are at X.Y.Z, and that CHANGELOG.md and CHANGELOG.ru.md
-both have a `## [X.Y.Z]` section with updated link footers. CI checks only
-CHANGELOG.md.
+targets, tags the commit, bumps the Homebrew tap and publishes the grove-git
+crate. Confirm first that Cargo.toml and Cargo.lock are at X.Y.Z, and that
+CHANGELOG.md and CHANGELOG.ru.md both have a `## [X.Y.Z]` section with updated
+link footers. PR readiness checks CHANGELOG.md; release verification checks both
+changelogs, the publishing secrets and the tap formula.
 -->

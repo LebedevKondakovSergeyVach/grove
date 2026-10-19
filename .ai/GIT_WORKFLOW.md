@@ -1,5 +1,11 @@
 # Git Workflow
 
+Branching, review and release rules. Pull requests are checked by
+`.github/workflows/branch-policy.yml`, so for them this is not advisory — a pull
+request that ignores it fails CI. A direct commit to a release branch is not
+checked by that workflow at all, which is why the rules below that it would
+enforce have to be kept by hand.
+
 ## Current state
 
 Version 0.1.0 is an MVP. The only branch is `main`. Commit on `main`.
@@ -22,8 +28,6 @@ main                    stable; every commit is a released version
           docs/…
 ```
 
-Three rules, and everything else follows:
-
 1. **Work lands on the open release branch.** The maintainer commits to it
    directly; external contributors, and larger changes the maintainer wants
    reviewed, arrive as a task branch merged into it by pull request. Nothing is
@@ -35,10 +39,10 @@ Three rules, and everything else follows:
 ### Why not merge task branches into main
 
 Merging `release/X.Y.Z` into `main` is the release trigger: CI reads the version
-from `Cargo.toml`, builds four targets, and creates `vX.Y.Z`. It does not update
-Homebrew until a `grove` formula exists. If task branches went straight to
-`main`, every merged bugfix would try to publish, and `main` would hold
-half-finished versions between releases.
+from `Cargo.toml`, builds four targets, creates `vX.Y.Z`, bumps the Homebrew
+tap and publishes the `grove-git` crate. If task branches went straight to `main`,
+every merged bugfix would try to publish, and `main` would hold half-finished
+versions between releases.
 
 ## Branch names
 
@@ -143,14 +147,21 @@ release-readiness job checks that:
 - `vX.Y.Z` is not already tagged,
 - `CHANGELOG.md` has a `## [X.Y.Z]` section.
 
-It does not look at `CHANGELOG.ru.md`, and neither does `release.yml` — the
-Russian changelog is checked only by you.
+It does not look at `CHANGELOG.ru.md`; `release.yml` checks both changelogs
+before publishing and uses their release sections for the GitHub release notes.
 
 Merging it runs `release.yml`: `resolve` sees `main` at a version with no tag;
-`verify` re-runs fmt, clippy and tests and checks `CHANGELOG.md` for the
-section; `build` produces macOS and Linux binaries for x86_64 and arm64 with
-SHA-256 checksums; and only then `publish` creates and pushes the annotated tag
-and creates the GitHub release with those files. Homebrew is not updated.
+`verify` re-runs fmt, clippy and tests, checks both changelogs for the section,
+checks that the `CARGO_API_KEY` and `HOMEBREW_TAP_TOKEN` secrets are set and
+that the tap has `Formula/grove.rb`, and runs `cargo publish --dry-run --locked`; `build` produces macOS and Linux
+binaries for x86_64 and arm64 with SHA-256 checksums; `publish` creates and
+pushes the annotated tag, creates the GitHub release with those files, and
+updates the Homebrew tap; `crates` then runs `cargo publish --locked`. Before
+tagging, `.github/scripts/homebrew_formula.py` verifies all four downloaded
+archives and checksums and renders a native download for each OS/CPU pair.
+The tap update writes the complete formula with its current blob SHA, so all
+URLs and checksums advance together. The token
+is the `CARGO_API_KEY` actions secret, passed as `CARGO_REGISTRY_TOKEN`.
 
 **Nothing is published until that merge.** Pushing a `v*` tag by hand also
 starts `release.yml` — `resolve` then requires the tag to match `Cargo.toml` and
@@ -163,10 +174,11 @@ After the release, delete the release branch and open the next one from `main`.
 
 **Before the tag.** `resolve`, `verify` and `build` all run before `publish`
 creates the tag, so a failure in any of them leaves no tag and nothing
-published. Fix the cause and run the release again: re-run the workflow for a
-transient failure, or, for a code fix, get it onto `main` the only way anything
-reaches `main` — merged from a release or hotfix branch. Either way `resolve`
-still sees no tag and releases.
+published. The dry-run in `verify` does not upload the crate. Fix the cause
+and run the release again: re-run the workflow for a transient failure, or,
+for a code fix, get it onto `main` the only way anything reaches `main` —
+merged from a release or hotfix branch. Either way `resolve` still sees no
+tag and releases.
 
 **After the tag.** If `publish` fails once `Create tag` has pushed `vX.Y.Z`, a
 new run from `main` will not help: `resolve` finds `refs/tags/vX.Y.Z`, sets
@@ -181,6 +193,14 @@ published before starting another.
 
 Do not reuse a tag that already has published artifacts — people may have
 downloaded them.
+
+**crates.io.** `crates` starts only after `publish` has pushed the tag. It
+checks out that same commit and uploads the `grove-git` crate. A version cannot be
+uploaded twice. If `crates` fails, re-run that job. Do not `workflow_dispatch`
+the tag to retry it: that enters `publish` again and repeats the GitHub
+release and the Homebrew bump, and `publish` does not check whether those
+already exist. A new run from `main` never reaches `crates` once the tag
+exists, because `should_release` is then false.
 
 ## Rules for agents
 
@@ -212,11 +232,11 @@ changed for them and, for a fix, what went wrong before.
 
 | Workflow | Trigger | Checks |
 | :--- | :--- | :--- |
-| `ci.yml` | Every pull request; pushes to `main`, `release/**`, `hotfix/**`; weekly; `workflow_dispatch` | fmt, clippy, docs, tests on Linux and macOS, MSRV, `cargo audit` |
+| `ci.yml` | Every pull request; pushes to `main`, `release/**`, `hotfix/**`; weekly; `workflow_dispatch` | fmt, clippy, docs, tests on Linux and macOS, MSRV, `rustsec/audit-check`, release-script unit tests |
 | `branch-policy.yml` | Every pull request (only) | Branch naming, head/base pairing; changelog entry on PRs into `release/*`; release readiness on `release/*` → `main` |
-| `release.yml` | Any push to `main`; a pushed `v*` tag; `workflow_dispatch` | Decides whether to release, re-verifies, builds four targets, tags, publishes. No Homebrew bump until a `grove` formula exists |
+| `release.yml` | Any push to `main`; a pushed `v*` tag; `workflow_dispatch` | Decides whether to release, re-verifies (including `cargo publish --dry-run`), builds four targets, tags, publishes the GitHub release, bumps Homebrew, then `cargo publish` of `grove-git` |
 | `website.yml` | Pull requests, and pushes to `main`/`release/**`/`hotfix/**`, touching `website/`, `docs/`, `assets/`, the READMEs, `CONTRIBUTING.md` or `CHANGELOG*.md`; `workflow_dispatch` | Generator tests, full site build, internal-link validation, a diff check after regeneration, `npm audit` |
-| `pages.yml` | Pushes to **`main`** touching those same paths; `workflow_dispatch` | Rebuilds and publishes the site to GitHub Pages |
+| `pages.yml` | Pushes to **`main`** touching the same content paths (its own file instead of `website.yml`); `workflow_dispatch` | Rebuilds and publishes the site to GitHub Pages |
 
 The website diff check detects tracked content changed by regeneration; it
 does not reject an unchanged tracked generated file. The local verification
