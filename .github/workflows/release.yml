@@ -30,7 +30,7 @@ jobs:
       version: ${{ steps.decide.outputs.version }}
       tag: ${{ steps.decide.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -67,7 +67,7 @@ jobs:
     if: needs.resolve.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # publish pushes the tag before the Homebrew and crates.io uploads, and a
       # tagged version never re-enters this path from main. Fail here, before
@@ -143,7 +143,7 @@ jobs:
             cross: true
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -171,7 +171,7 @@ jobs:
             -C "target/${{ matrix.target }}/release" grove
           shasum -a 256 "${{ matrix.artifact_name }}" > "${{ matrix.artifact_name }}.sha256"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: |
@@ -186,7 +186,7 @@ jobs:
     env:
       RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -210,7 +210,7 @@ jobs:
           Path("release-notes.md").write_text("\n\n".join(sections) + "\n")
           PY
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: release-artifacts
 
@@ -235,7 +235,7 @@ jobs:
           git push origin "refs/tags/$RELEASE_TAG"
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.resolve.outputs.tag }}
           name: Release ${{ needs.resolve.outputs.tag }}
@@ -279,7 +279,7 @@ jobs:
     # No build cache here: nothing restored from a cache should reach the
     # build that holds the registry token.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Publish to crates.io
         run: cargo publish --locked
