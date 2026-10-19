@@ -6,12 +6,17 @@ edition = "2024"
 rust-version = "1.88"
 authors = ["LebedevKondakovSergeyVach <sergejlebedev31838@gmail.com>"]
 description = "CLI for one git workflow across a workspace of related repositories"
-license = "AGPL-3.0"
+license = "AGPL-3.0-only"
 repository = "https://github.com/LebedevKondakovSergeyVach/grove"
 homepage = "https://github.com/LebedevKondakovSergeyVach/grove"
 readme = "README.md"
 keywords = ["git", "cli", "workspace"]
 categories = ["command-line-utilities", "development-tools"]
+# Agent tooling, CI and site sources are not part of the published crate.
+exclude = [
+    "/.agents", "/.ai", "/.claude", "/.codex", "/.cursor", "/.githooks", "/.github",
+    "/.mcp.json", "/AGENTS.md", "/CLAUDE.md", "/assets", "/docs", "/website",
+]
 
 # [[bin]] name is grove. The package name stays grove-git.
 [[bin]]
