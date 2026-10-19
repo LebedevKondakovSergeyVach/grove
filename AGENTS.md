@@ -117,8 +117,9 @@ push a tag: a push to `main` runs the publishing pipeline.
 
 Always:
 
-- Never bypass hooks (`--no-verify`, `commit -n`, `core.hooksPath`). Enable
-  them once per clone with `git config core.hooksPath .githooks`. In Claude
+- Never bypass hooks (`--no-verify`, `commit -n`, a `core.hooksPath` other
+  than `.githooks`). Enable them once per clone with
+  `git config core.hooksPath .githooks`. In Claude
   Code, `.claude/hooks/guard-git.sh` blocks bypasses and author overrides.
 - Commits and PRs carry no tool authorship: no `Co-Authored-By:`, "Generated
   with" line, tool name or `--author`. Brief committing subagents explicitly.

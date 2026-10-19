@@ -45,15 +45,20 @@ GIT_MUTATING = {"commit", "commit-tree", "push", "pull", "fetch", "checkout", "s
                 "update-index", "update-ref", "symbolic-ref", "read-tree", "checkout-index", "submodule",
                 "init", "clone", "gc", "prune", "prune-packed", "repack", "pack-refs", "notes", "filter-branch",
                 "replace", "fast-import", "bisect", "sparse-checkout", "maintenance", "lfs", "send-pack",
-                "fetch-pack", "receive-pack"}
+                "fetch-pack", "receive-pack", "difftool", "mergetool", "instaweb", "web--browse"}
 # Config keys and environment variables that make git run another program.
 EXEC_KEY_RE = re.compile(r"^(core\.(pager|editor|sshcommand|fsmonitor|hookspath|askpass|gitproxy)|pager\..+|"
                          r"sequence\.editor|diff\.external|diff\..+\.(textconv|command)|merge\..+\.driver|"
+                         r"difftool\..+\.cmd|mergetool\..+\.cmd|browser\..+\.(cmd|path)|man\..+\.(cmd|path)|"
+                         r"core\.alternaterefscommand|gpg\..+command|"
                          r"filter\..+|credential\..*helper|gpg\..*program|uploadpack\..+|receivepack\..+|"
                          r"remote\..+\.(uploadpack|receivepack)|protocol\..+|include\..+|includeif\..+)$", re.I)
 EXEC_ENV_RE = re.compile(r"^(GIT_(PAGER|EDITOR|SEQUENCE_EDITOR|EXTERNAL_DIFF|SSH|SSH_COMMAND|ASKPASS|PROXY_COMMAND|"
-                         r"CONFIG_PARAMETERS|CONFIG_COUNT|CONFIG_KEY_\d+|CONFIG_VALUE_\d+|EXEC_PATH|TEMPLATE_DIR)|"
-                         r"PAGER|EDITOR|VISUAL)=")
+                         r"CONFIG.*|EXEC_PATH|TEMPLATE_DIR|DIR|COMMON_DIR|WORK_TREE)|PAGER|EDITOR|VISUAL|HOME|XDG_CONFIG_HOME|"
+                         r"LESS|LESSOPEN|LESSCLOSE|SSH_ASKPASS)(=|$)")
+# The same names as a bare word anywhere (for X in, read X, printf -v X, export X) set them too.
+EXEC_NAME_RE = re.compile(EXEC_ENV_RE.pattern[1:].replace("(=|$)", "") + r"$")
+DECLARERS = {"export", "declare", "typeset", "local", "readonly"}
 TAG_READS = {"-l", "--list", "--contains", "--no-contains", "--merged", "--no-merged", "--points-at"}
 CONFIG_WITH_ARG = {"-f", "--file", "--blob", "-t", "--type", "--default", "--comment", "--value"}
 CONFIG_READ_FLAGS = {"--get", "--get-all", "--get-regexp", "--list", "-l", "--get-color", "--get-colorbool",
@@ -150,8 +155,8 @@ def check_git(args, depth, assignments=()):
     j = 0
     while j < len(args):
         a = args[j]
-        if a.startswith(("--config-env", "-c=")) or a == "--config-env":
-            raise Deny("git --config-env is not allowed in a headless run")
+        if a.startswith(("--config-env", "-c=", "--git-dir", "--work-tree", "--exec-path")):
+            raise Deny("git " + a.split("=", 1)[0] + " is not allowed in a headless run")
         if a in GIT_GLOBAL_WITH_ARG:
             if a == "-c" and j + 1 < len(args):
                 key, _, value = args[j + 1].partition("=")
@@ -173,7 +178,8 @@ def check_git(args, depth, assignments=()):
     if (sub == "hash-object" and "-w" in rest) or (sub == "reflog" and rest[:1] in (["delete"], ["expire"])) \
             or (sub in ("commit-graph", "multi-pack-index") and "write" in rest):
         raise Deny("git " + sub + " writes objects or refs")
-    if sub == "remote" and rest and rest[0] not in ("-v", "--verbose", "show", "get-url"):
+    if sub == "remote" and rest[:1] and rest[0] in ("add", "remove", "rm", "rename", "set-url", "set-head",
+                                                     "set-branches", "prune", "update"):
         raise Deny("git remote " + rest[0] + " changes remotes")
     if sub == "tag" and rest and not set(rest) & TAG_READS and not rest[0].startswith("-n"):
         raise Deny("git tag changes tags")
@@ -190,6 +196,8 @@ def check_git(args, depth, assignments=()):
                 continue
             if a.startswith("-") or not filtered:
                 raise Deny("git branch " + a + " changes refs")
+    if sub == "grep" and any(re.match(r"^-[A-Za-z0-9]*O", a) or a.startswith("--op") for a in rest):
+        raise Deny("git grep -O runs a pager program")
     if sub == "config" and not config_is_read(rest):
         raise Deny("git config writes configuration")
 
@@ -227,6 +235,9 @@ def check_rm(args):
 
 def check_command(tokens, depth):
     for t in tokens:
+        name = t.split("=", 1)[0]  # $HOME reads a variable; HOME or HOME=x sets one
+        if EXEC_NAME_RE.match(name):
+            raise Deny(name + " decides which program git or a pager runs")
         if "$(" in t:
             check_text(t[t.index("$(") + 2:], depth + 1)
         if "\n" in t:
@@ -250,6 +261,9 @@ def check_command(tokens, depth):
         else:
             break
     if i >= len(tokens):
+        for a in assignments:  # GIT_PAGER=evil; git log sets it for the rest of the shell
+            if EXEC_ENV_RE.match(a):
+                raise Deny("setting " + a.split("=", 1)[0] + " makes git run another program")
         return False
     first = tokens[i]
     if re.search(r"\s", first):
@@ -268,7 +282,13 @@ def check_command(tokens, depth):
         return all(a.startswith("-") for a in args)
     elif prog == "git":
         check_git(args, depth, assignments)
+    elif prog in DECLARERS:
+        for a in args:  # export GIT_PAGER=... applies to every later git call
+            if EXEC_ENV_RE.match(a):
+                raise Deny(prog + " " + a.split("=", 1)[0] + " makes git run another program")
     elif prog == "find":
+        if "-delete" in args:
+            raise Deny("find -delete removes files")
         for k, a in enumerate(args):  # find -exec git push {} ; runs that command
             if a in ("-exec", "-execdir", "-ok", "-okdir"):
                 end = next((m for m in range(k + 1, len(args)) if args[m] in (";", "+", "\\;")), len(args))
